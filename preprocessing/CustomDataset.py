@@ -16,7 +16,7 @@ class CustomDataset1(Dataset):
         label = self.y[idx]
 
         image = Image.open(image).convert("RGB")
-        image = transforms.Resize((225, 225))
+        image = transforms.Resize((224, 224))
         image = transforms.ToTensor()
         image = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) #ImageNet values
         # image = transforms.Normalize(mean=[0.39113031, 0.45169107, 0.47652261], std=[0.22719704, 0.22926628, 0.23404671]) # averages of the train set
@@ -36,7 +36,7 @@ class CustomDataset2(Dataset):
         label = self.y[idx]
 
         image = Image.open(path).convert("RGB")
-        image = transforms.Resize((225, 225))
+        image = transforms.Resize((224, 224))
         image = transforms.ToTensor()
         image = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) #ImageNet values
         # image = transforms.Normalize(mean=[0.39113031, 0.45169107, 0.47652261], std=[0.22719704, 0.22926628, 0.23404671]) # averages of the train set
@@ -54,7 +54,7 @@ class CustomDataset3(Dataset):
         image = self.X[idx]
 
         image = Image.open(image).convert("RGB")
-        image = transforms.Resize((225, 225))
+        image = transforms.Resize((224, 224))
         image = transforms.ToTensor()
         image = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) #ImageNet values
         # image = transforms.Normalize(mean=[0.39113031, 0.45169107, 0.47652261], std=[0.22719704, 0.22926628, 0.23404671]) # averages of the train set
