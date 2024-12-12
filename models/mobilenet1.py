@@ -10,7 +10,7 @@ import pandas as pd
 import seaborn as sns
 
 sys.path.append(os.path.abspath('../preprocessing'))
-from CustomDataset import CustomDataset
+from CustomDataset import CustomDataset1, CustomDataset2, CustomDataset3
 
 class MobileNet1(nn.Module):
     # INIT
