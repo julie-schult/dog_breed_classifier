@@ -17,9 +17,29 @@ class MobileNet1(nn.Module):
     def __init__(self):
         super().__init__()
         self.model = models.mobilenet_v2(pretrained=True)
+        self.hidden_layers = nn.Sequential(
+            nn.Conv2d(1280, 512, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(512),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+
+            nn.Conv2d(512, 256, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2)
+        )
+        self.classifier = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(256 * 7 * 7, 1024),
+            nn.ReLU(inplace=True),
+            nn.Dropout(0.5),
+            nn.Linear(1024, 120)
+        )
     # FORWARD PASS
     def forward(self, input_values):
         x = self.model(input_values)
+        x = self.hidden_layers(x)
+        x = self.classifier(x)
         return x
     # TRAIN
     def fit(self, train_loader, max_epochs=10, lr=0.001, folder='../results'):
