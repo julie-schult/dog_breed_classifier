@@ -7,6 +7,7 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 import pandas as pd
+import seaborn as sns
 
 sys.path.append(os.path.abspath('../preprocessing'))
 from CustomDataset import CustomDataset
@@ -81,7 +82,57 @@ class MobileNet1(nn.Module):
         specificity = 0.0
         recall = 0.0
 
+        all_paths = []
+        all_preds = []
+        all_labels = []
+
         checkpoint = torch.load(weight)
         self.load_state_dict(checkpoint['model_state_dict'])
         self.eval()
 
+        for paths, inputs, labels in test_loader:
+            outputs = self.forward(inputs)
+            _, predicted = outputs.max(1)
+
+            all_paths.append(paths)
+            all_preds.append(predicted)
+            all_labels.append(labels)
+
+        all_paths = [item for sublist in all_paths for item in sublist]
+        all_preds = [item for sublist in all_preds for item in sublist]
+        all_labels = [item for sublist in all_labels for item in sublist]
+
+        results = pd.DataFrame({
+            'path': all_paths,
+            'predicted': all_preds,
+            'label': all_labels
+        })
+        file = os.path.join(folder, f'test_results.csv')
+        results.to_csv(file, index=False)
+
+        correct = sum( x == y for x,y in zip(all_labels, all_preds))
+        accuracy = correct / len(all_paths)
+
+        print(f'Accuracy: {accuracy:.5f}')
+
+        cm = confusion_matrix(all_labels, all_preds)
+        TN,FP, FN, TP = cm.ravel()
+        
+        sensitivity = TP / (TP + FN)
+        specificity = TN / (TN + FP)
+        precision = TP / (TP + FP)
+        recall = TP / (TP + FN)
+
+        print(f'Sensitivity={sensitivity:.3f}, Specificity={specificity:.3f}, Precision={precision:.3f}, Recall={recall:.3f}')
+
+        f = plt.figure(figsize=(8,6))
+        ax= f.add_subplot()
+        sns.heatmap(cm, annot=True, fmt='g', ax=ax, cmap='Greens')
+        ax.set_xlabel('Predicted labels')
+        ax.set_ylabel('True labels')
+        ax.set_title(f'Confusion Matrix')
+        ax.xaxis.set_ticklabels(['HC', 'PD'])
+        ax.yaxis.set_ticklabels(['HC', 'PD'])
+        file = os.path.join(folder, f'cm.png')
+        f.savefig(file, dpi=400)
+        plt.close(f)
